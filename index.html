@@ -3,69 +3,280 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Proxy Browser</title>
+    <title>Gossip Life Game</title>
     <style>
+        /* Retro theme styles */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Press Start 2P', cursive;
+            background-color: #111;
+            color: #00ff00;
+            text-align: center;
             margin: 0;
             padding: 0;
-        }
-        #navbar {
-            background-color: #333;
-            padding: 10px;
-            color: white;
+            height: 100vh;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
+            align-items: center;
         }
-        #url-bar {
+
+        h1 {
+            font-size: 3em;
+            margin-top: 20px;
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 30px #ff00ff;
+        }
+
+        .game-container {
             width: 80%;
-            padding: 5px;
-            font-size: 14px;
+            height: 80%;
+            max-width: 800px;
+            background-color: #222;
+            border: 5px solid #00ff00;
+            border-radius: 20px;
+            box-shadow: 0 0 20px #ff00ff, 0 0 30px #ff00ff;
+            padding: 20px;
+            color: #fff;
         }
-        #go-button {
-            padding: 6px 12px;
-            background-color: #007BFF;
-            color: white;
-            border: none;
+
+        .gossip-box {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #444;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(255, 0, 255, 0.7);
+            font-size: 1.1em;
+            text-align: left;
+        }
+
+        .button {
+            padding: 12px 24px;
+            font-size: 1.2em;
             cursor: pointer;
-        }
-        #go-button:hover {
-            background-color: #0056b3;
-        }
-        iframe {
-            width: 100%;
-            height: calc(100vh - 50px);
             border: none;
+            background-color: #ff00ff;
+            color: #fff;
+            border-radius: 8px;
+            margin: 10px;
+            box-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+            transition: background-color 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #ff69b4;
+        }
+
+        .message {
+            margin-top: 15px;
+            font-size: 1.1em;
+            color: #00ff00;
+        }
+
+        .score {
+            margin-top: 20px;
+            font-size: 1.5em;
+            color: #ff00ff;
+        }
+
+        .story {
+            margin-top: 30px;
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #ff00ff;
+        }
+
+        /* Retro pixel font for added effect */
+        @font-face {
+            font-family: 'Press Start 2P';
+            src: url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap') format('truetype');
         }
     </style>
 </head>
 <body>
-    <div id="navbar">
-        <input type="text" id="url-bar" placeholder="Enter URL" />
-        <button id="go-button">Go</button>
+
+<div class="game-container">
+    <h1>Gossip Life Game</h1>
+
+    <div id="characterCreation" class="gossip-box">
+        <p>Welcome to the Gossip Life! Let's create your character.</p>
+        <label for="characterName">Enter your name: </label>
+        <input type="text" id="characterName" placeholder="Your Name" />
+        <br />
+        <button class="button" onclick="startGame()">Start Game</button>
     </div>
-    <iframe id="browser-frame" src="about:blank"></iframe>
 
-    <script>
-        document.getElementById('go-button').addEventListener('click', function() {
-            var url = document.getElementById('url-bar').value;
-            if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                url = 'http://' + url;
-            }
+    <div id="gossipArea" class="gossip-box"></div>
 
-            // Check if the website allows embedding in an iframe
-            let iframe = document.getElementById('browser-frame');
-            iframe.src = url;
+    <div id="buttonArea">
+        <!-- Dynamic button area will be populated here -->
+    </div>
 
-            // You may want to add some checks or restrictions if you wish to limit URLs
-        });
+    <div id="lifeScoreArea" class="score">
+        Score: <span id="lifeScore">0</span>
+    </div>
+</div>
 
-        document.getElementById('url-bar').addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                document.getElementById('go-button').click();
-            }
-        });
-    </script>
+<script>
+    let characterName = "Your character";
+    let lifeScore = 0;
+    let currentStoryIndex = 0;
+
+    // Gossip and event messages
+    let gossipMessages = [
+        "Everyone's talking about how you just got a promotion!",
+        "Rumor has it, you've been spotted at a famous party last night.",
+        "Did you hear? Someone said you bought an expensive car!",
+        "You became the talk of the town after a mysterious social media post.",
+        "Everyone's been whispering about your new relationship. So mysterious!",
+        "You just got a huge deal! Now everyone wants to know your secret!",
+        "People are saying you're the next big thing in the industry!",
+        "A lot of people are talking about how you turned your life around!",
+        "Someone's been gossiping that you're secretly working on a huge project!"
+    ];
+
+    // Story options with consequences (positive or negative)
+    let storyChoices = [
+        {
+            message: "You're starting your career. What do you do?",
+            options: [
+                { choice: "Take the safe office job.", outcome: 10 },
+                { choice: "Start your own business and take the risk.", outcome: 20 },
+                { choice: "Travel the world first before making any decisions.", outcome: -5 }
+            ]
+        },
+        {
+            message: "Your first major choice. Do you:",
+            options: [
+                { choice: "Take a risky investment opportunity.", outcome: 30 },
+                { choice: "Play it safe and keep your savings intact.", outcome: 10 },
+                { choice: "Ignore all financial matters for now.", outcome: -10 }
+            ]
+        },
+        {
+            message: "You meet someone who offers you a partnership. Do you:",
+            options: [
+                { choice: "Agree to the partnership without hesitation.", outcome: 25 },
+                { choice: "Negotiate better terms first.", outcome: 15 },
+                { choice: "Politely decline the offer.", outcome: -5 }
+            ]
+        },
+        {
+            message: "You’re in a relationship. Do you:",
+            options: [
+                { choice: "Move in together immediately.", outcome: 10 },
+                { choice: "Take things slow and spend more time together.", outcome: 15 },
+                { choice: "Focus on your career first.", outcome: -5 }
+            ]
+        },
+        {
+            message: "You’ve made a big decision in your business. What do you do next?",
+            options: [
+                { choice: "Expand your business into new markets.", outcome: 50 },
+                { choice: "Hire a team and delegate tasks.", outcome: 30 },
+                { choice: "Focus on improving your current operations.", outcome: 20 }
+            ]
+        },
+        {
+            message: "A competitor is trying to steal your business idea. What do you do?",
+            options: [
+                { choice: "Sue them for intellectual property theft.", outcome: 40 },
+                { choice: "Negotiate a settlement and collaborate.", outcome: 25 },
+                { choice: "Let it slide and focus on your work.", outcome: -20 }
+            ]
+        },
+        {
+            message: "Your business is facing a financial crisis. What do you do?",
+            options: [
+                { choice: "Take out a loan to cover expenses.", outcome: -10 },
+                { choice: "Sell part of the company to investors.", outcome: 30 },
+                { choice: "Lay off some staff and cut costs.", outcome: 15 }
+            ]
+        },
+        {
+            message: "You get an unexpected offer to join a different company. What do you do?",
+            options: [
+                { choice: "Accept the offer and move to a new city.", outcome: 20 },
+                { choice: "Turn down the offer and stay with your current company.", outcome: 10 },
+                { choice: "Negotiate for a better deal before deciding.", outcome: 15 }
+            ]
+        },
+        {
+            message: "You've become famous in your field. What do you do next?",
+            options: [
+                { choice: "Write a book about your journey.", outcome: 50 },
+                { choice: "Start a podcast and share your knowledge.", outcome: 30 },
+                { choice: "Focus on personal growth and relationships.", outcome: 10 }
+            ]
+        },
+        {
+            message: "You’ve made a huge breakthrough! The world is watching. How do you handle it?",
+            options: [
+                { choice: "Keep the breakthrough to yourself and work quietly.", outcome: -10 },
+                { choice: "Announce it to the world and bask in the glory.", outcome: 20 },
+                { choice: "Work with other experts to refine your discovery.", outcome: 40 }
+            ]
+        },
+        {
+            message: "You’ve reached a turning point in your life. What’s next?",
+            options: [
+                { choice: "Take a break and travel the world.", outcome: -5 },
+                { choice: "Invest all your savings into a risky startup.", outcome: -20 },
+                { choice: "Focus on family and relationships for the time being.", outcome: 15 }
+            ]
+        },
+        {
+            message: "Your company faces a major scandal. Do you:",
+            options: [
+                { choice: "Apologize publicly and promise change.", outcome: -15 },
+                { choice: "Keep quiet and hope it blows over.", outcome: -30 },
+                { choice: "Take legal action against those spreading rumors.", outcome: 20 }
+            ]
+        },
+        {
+            message: "You’re considering retirement. What will you do next?",
+            options: [
+                { choice: "Retire early and enjoy your time.", outcome: 30 },
+                { choice: "Start a new venture and stay active.", outcome: 20 },
+                { choice: "Stay in the workforce for a few more years.", outcome: 10 }
+            ]
+        }
+    ];
+
+    // Start the game
+    function startGame() {
+        characterName = document.getElementById("characterName").value || "Your character";
+        document.getElementById("characterCreation").style.display = 'none';
+        document.getElementById("gossipArea").innerHTML = `<p>Welcome, ${characterName}! You're starting your journey in Gossip Life!</p>`;
+        document.getElementById("buttonArea").innerHTML = `<button class="button" onclick="makeChoice(0)">Start your journey!</button>`;
+    }
+
+    // Make a choice
+    function makeChoice(choiceIndex) {
+        let currentStory = storyChoices[currentStoryIndex];
+        let choice = currentStory.options[choiceIndex];
+
+        // Update score based on outcome
+        lifeScore += choice.outcome;
+
+        // Update gossip and story
+        document.getElementById("gossipArea").innerHTML = `
+            <p>${currentStory.message}</p>
+            <div class="message">${gossipMessages[Math.floor(Math.random() * gossipMessages.length)]}</div>
+            <p><strong>Your choice:</strong> ${choice.choice}</p>
+            <p>Outcome: ${choice.outcome >= 0 ? `+${choice.outcome}` : choice.outcome}</p>
+        `;
+        document.getElementById("lifeScore").textContent = lifeScore;
+
+        // Prepare for the next story or repeat the current one with a twist
+        currentStoryIndex = (currentStoryIndex + 1) % storyChoices.length;
+
+        // Update the button choices
+        document.getElementById("buttonArea").innerHTML = `
+            <button class="button" onclick="makeChoice(0)">${storyChoices[currentStoryIndex].options[0].choice}</button>
+            <button class="button" onclick="makeChoice(1)">${storyChoices[currentStoryIndex].options[1].choice}</button>
+            <button class="button" onclick="makeChoice(2)">${storyChoices[currentStoryIndex].options[2].choice}</button>
+        `;
+    }
+</script>
+
 </body>
 </html>
