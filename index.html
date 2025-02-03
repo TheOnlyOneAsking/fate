@@ -1,282 +1,364 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gossip Life Game</title>
-    <style>
-        /* Retro theme styles */
-        body {
-            font-family: 'Press Start 2P', cursive;
-            background-color: #111;
-            color: #00ff00;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        h1 {
-            font-size: 3em;
-            margin-top: 20px;
-            color: #ff00ff;
-            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 30px #ff00ff;
-        }
-
-        .game-container {
-            width: 80%;
-            height: 80%;
-            max-width: 800px;
-            background-color: #222;
-            border: 5px solid #00ff00;
-            border-radius: 20px;
-            box-shadow: 0 0 20px #ff00ff, 0 0 30px #ff00ff;
-            padding: 20px;
-            color: #fff;
-        }
-
-        .gossip-box {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #444;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(255, 0, 255, 0.7);
-            font-size: 1.1em;
-            text-align: left;
-        }
-
-        .button {
-            padding: 12px 24px;
-            font-size: 1.2em;
-            cursor: pointer;
-            border: none;
-            background-color: #ff00ff;
-            color: #fff;
-            border-radius: 8px;
-            margin: 10px;
-            box-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
-            transition: background-color 0.3s ease;
-        }
-
-        .button:hover {
-            background-color: #ff69b4;
-        }
-
-        .message {
-            margin-top: 15px;
-            font-size: 1.1em;
-            color: #00ff00;
-        }
-
-        .score {
-            margin-top: 20px;
-            font-size: 1.5em;
-            color: #ff00ff;
-        }
-
-        .story {
-            margin-top: 30px;
-            font-size: 1.4em;
-            font-weight: bold;
-            color: #ff00ff;
-        }
-
-        /* Retro pixel font for added effect */
-        @font-face {
-            font-family: 'Press Start 2P';
-            src: url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap') format('truetype');
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fate's Journey</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      font-family: 'Press Start 2P', cursive;
+      background-color: #000;
+      color: #fff;
+      overflow: hidden;
+    }
+    .game-container {
+      border: 2px solid #fff;
+      box-shadow: 0 0 10px #fff;
+    }
+    .button {
+      background-color: #fff;
+      color: #000;
+      border: 2px solid #fff;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .button:hover {
+      background-color: #000;
+      color: #fff;
+    }
+    .card {
+      border: 2px solid #fff;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 0 10px #fff;
+    }
+    .half-screen {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 50%;
+    }
+    .left-half {
+      left: 0;
+      background-color: #87CEEB;
+    }
+    .right-half {
+      right: 0;
+      background-color: #800000;
+    }
+    .left-half img, .right-half img {
+      position: absolute;
+    }
+    .running-game {
+      position: relative;
+      height: 400px;
+      width: 100%;
+      overflow: hidden;
+      background-color: #222;
+    }
+    .player {
+      position: absolute;
+      bottom: 0;
+      width: 30px;
+      height: 30px;
+      background-color: #ff0000;
+    }
+    .obstacle {
+      position: absolute;
+      bottom: 0;
+      width: 30px;
+      height: 30px;
+      background-color: #00ff00;
+    }
+  </style>
 </head>
-<body>
-
-<div class="game-container">
-    <h1>Gossip Life Game</h1>
-
-    <div id="characterCreation" class="gossip-box">
-        <p>Welcome to the Gossip Life! Let's create your character.</p>
-        <label for="characterName">Enter your name: </label>
-        <input type="text" id="characterName" placeholder="Your Name" />
-        <br />
-        <button class="button" onclick="startGame()">Start Game</button>
+<body class="flex items-center justify-center min-h-screen relative">
+  <div class="game-container bg-black p-8 rounded-lg w-full max-w-md z-10">
+    <h1 class="text-3xl mb-4 text-center font-bold">Fate's Journey</h1>
+    <div class="card mb-6" id="characterCreation">
+      <p class="mb-2">Enter your name, traveler of destiny:</p>
+      <input class="border p-2 rounded-md w-full mb-4 bg-black text-white border-white" id="characterName" placeholder="Your Name" type="text"/>
+      <button class="button px-4 py-2 rounded-md w-full" onclick="startGame()">Begin Your Fate</button>
     </div>
-
-    <div id="gossipArea" class="gossip-box"></div>
-
-    <div id="buttonArea">
-        <!-- Dynamic button area will be populated here -->
+    <div class="hidden" id="gameArea">
+      <div class="card mb-6" id="mainStory">
+        <p class="text-lg" id="storyText">Your fate awaits...</p>
+      </div>
+      <div class="card mb-6" id="optionsArea">
+        <div class="options-container space-y-4">
+          <!-- Dynamic choices appear here -->
+        </div>
+      </div>
+      <div class="karma-score text-center text-lg">
+        Karma Balance:
+        <span class="font-bold" id="karmaScore">0</span>
+      </div>
     </div>
+  </div>
 
-    <div id="lifeScoreArea" class="score">
-        Score: <span id="lifeScore">0</span>
-    </div>
-</div>
+  <script>
+        function startGame() {
+        const nameInput = document.getElementById("characterName");
+        const playerName = nameInput.value.trim();
 
-<script>
-    let characterName = "Your character";
-    let lifeScore = 0;
-    let currentStoryIndex = 0;
-
-    // Gossip and event messages
-    let gossipMessages = [
-        "Everyone's talking about how you just got a promotion!",
-        "Rumor has it, you've been spotted at a famous party last night.",
-        "Did you hear? Someone said you bought an expensive car!",
-        "You became the talk of the town after a mysterious social media post.",
-        "Everyone's been whispering about your new relationship. So mysterious!",
-        "You just got a huge deal! Now everyone wants to know your secret!",
-        "People are saying you're the next big thing in the industry!",
-        "A lot of people are talking about how you turned your life around!",
-        "Someone's been gossiping that you're secretly working on a huge project!"
-    ];
-
-    // Story options with consequences (positive or negative)
-    let storyChoices = [
-        {
-            message: "You're starting your career. What do you do?",
-            options: [
-                { choice: "Take the safe office job.", outcome: 10 },
-                { choice: "Start your own business and take the risk.", outcome: 20 },
-                { choice: "Travel the world first before making any decisions.", outcome: -5 }
-            ]
-        },
-        {
-            message: "Your first major choice. Do you:",
-            options: [
-                { choice: "Take a risky investment opportunity.", outcome: 30 },
-                { choice: "Play it safe and keep your savings intact.", outcome: 10 },
-                { choice: "Ignore all financial matters for now.", outcome: -10 }
-            ]
-        },
-        {
-            message: "You meet someone who offers you a partnership. Do you:",
-            options: [
-                { choice: "Agree to the partnership without hesitation.", outcome: 25 },
-                { choice: "Negotiate better terms first.", outcome: 15 },
-                { choice: "Politely decline the offer.", outcome: -5 }
-            ]
-        },
-        {
-            message: "You’re in a relationship. Do you:",
-            options: [
-                { choice: "Move in together immediately.", outcome: 10 },
-                { choice: "Take things slow and spend more time together.", outcome: 15 },
-                { choice: "Focus on your career first.", outcome: -5 }
-            ]
-        },
-        {
-            message: "You’ve made a big decision in your business. What do you do next?",
-            options: [
-                { choice: "Expand your business into new markets.", outcome: 50 },
-                { choice: "Hire a team and delegate tasks.", outcome: 30 },
-                { choice: "Focus on improving your current operations.", outcome: 20 }
-            ]
-        },
-        {
-            message: "A competitor is trying to steal your business idea. What do you do?",
-            options: [
-                { choice: "Sue them for intellectual property theft.", outcome: 40 },
-                { choice: "Negotiate a settlement and collaborate.", outcome: 25 },
-                { choice: "Let it slide and focus on your work.", outcome: -20 }
-            ]
-        },
-        {
-            message: "Your business is facing a financial crisis. What do you do?",
-            options: [
-                { choice: "Take out a loan to cover expenses.", outcome: -10 },
-                { choice: "Sell part of the company to investors.", outcome: 30 },
-                { choice: "Lay off some staff and cut costs.", outcome: 15 }
-            ]
-        },
-        {
-            message: "You get an unexpected offer to join a different company. What do you do?",
-            options: [
-                { choice: "Accept the offer and move to a new city.", outcome: 20 },
-                { choice: "Turn down the offer and stay with your current company.", outcome: 10 },
-                { choice: "Negotiate for a better deal before deciding.", outcome: 15 }
-            ]
-        },
-        {
-            message: "You've become famous in your field. What do you do next?",
-            options: [
-                { choice: "Write a book about your journey.", outcome: 50 },
-                { choice: "Start a podcast and share your knowledge.", outcome: 30 },
-                { choice: "Focus on personal growth and relationships.", outcome: 10 }
-            ]
-        },
-        {
-            message: "You’ve made a huge breakthrough! The world is watching. How do you handle it?",
-            options: [
-                { choice: "Keep the breakthrough to yourself and work quietly.", outcome: -10 },
-                { choice: "Announce it to the world and bask in the glory.", outcome: 20 },
-                { choice: "Work with other experts to refine your discovery.", outcome: 40 }
-            ]
-        },
-        {
-            message: "You’ve reached a turning point in your life. What’s next?",
-            options: [
-                { choice: "Take a break and travel the world.", outcome: -5 },
-                { choice: "Invest all your savings into a risky startup.", outcome: -20 },
-                { choice: "Focus on family and relationships for the time being.", outcome: 15 }
-            ]
-        },
-        {
-            message: "Your company faces a major scandal. Do you:",
-            options: [
-                { choice: "Apologize publicly and promise change.", outcome: -15 },
-                { choice: "Keep quiet and hope it blows over.", outcome: -30 },
-                { choice: "Take legal action against those spreading rumors.", outcome: 20 }
-            ]
-        },
-        {
-            message: "You’re considering retirement. What will you do next?",
-            options: [
-                { choice: "Retire early and enjoy your time.", outcome: 30 },
-                { choice: "Start a new venture and stay active.", outcome: 20 },
-                { choice: "Stay in the workforce for a few more years.", outcome: 10 }
-            ]
+        // Ensure the player enters a name
+        if (playerName === "") {
+            alert("Please enter your name to begin your journey.");
+            return;
         }
-    ];
 
-    // Start the game
-    function startGame() {
-        characterName = document.getElementById("characterName").value || "Your character";
-        document.getElementById("characterCreation").style.display = 'none';
-        document.getElementById("gossipArea").innerHTML = `<p>Welcome, ${characterName}! You're starting your journey in Gossip Life!</p>`;
-        document.getElementById("buttonArea").innerHTML = `<button class="button" onclick="makeChoice(0)">Start your journey!</button>`;
+        // Hide character creation and show game area
+        document.getElementById("characterCreation").classList.add("hidden");
+        document.getElementById("gameArea").classList.remove("hidden");
+
+        // Update story text
+        document.getElementById("storyText").textContent =
+            `Welcome, ${playerName}. Your fate is unwritten. Before you lies a path of light and a path of shadow. Choose wisely.`;
+
+        // Generate choices for the next step
+        generateChoices([
+            { text: "Step into the light", karma: 5, next: "lightPath" },
+            { text: "Embrace the shadows", karma: -5, next: "darkPath" },
+            { text: "Stand still and meditate", karma: 0, next: "neutralPath" }
+        ]);
     }
 
-    // Make a choice
-    function makeChoice(choiceIndex) {
-        let currentStory = storyChoices[currentStoryIndex];
-        let choice = currentStory.options[choiceIndex];
 
-        // Update score based on outcome
-        lifeScore += choice.outcome;
+      function generateChoices(choices) {
+        const optionsContainer = document.querySelector(".options-container");
+        optionsContainer.innerHTML = "";
 
-        // Update gossip and story
-        document.getElementById("gossipArea").innerHTML = `
-            <p>${currentStory.message}</p>
-            <div class="message">${gossipMessages[Math.floor(Math.random() * gossipMessages.length)]}</div>
-            <p><strong>Your choice:</strong> ${choice.choice}</p>
-            <p>Outcome: ${choice.outcome >= 0 ? `+${choice.outcome}` : choice.outcome}</p>
-        `;
-        document.getElementById("lifeScore").textContent = lifeScore;
+        choices.forEach(choice => {
+          const button = document.createElement("button");
+          button.className = "button px-4 py-2 rounded-md w-full";
+          button.textContent = choice.text;
 
-        // Prepare for the next story or repeat the current one with a twist
-        currentStoryIndex = (currentStoryIndex + 1) % storyChoices.length;
+          button.onclick = function () {
+            updateKarma(choice.karma);
+            nextStory(choice.next);
+          };
 
-        // Update the button choices
-        document.getElementById("buttonArea").innerHTML = `
-            <button class="button" onclick="makeChoice(0)">${storyChoices[currentStoryIndex].options[0].choice}</button>
-            <button class="button" onclick="makeChoice(1)">${storyChoices[currentStoryIndex].options[1].choice}</button>
-            <button class="button" onclick="makeChoice(2)">${storyChoices[currentStoryIndex].options[2].choice}</button>
-        `;
+          optionsContainer.appendChild(button);
+        });
+      }
+
+      function updateKarma(amount) {
+        const karmaElement = document.getElementById("karmaScore");
+        let currentKarma = parseInt(karmaElement.textContent);
+        karmaElement.textContent = currentKarma + amount;
+      }
+
+      function nextStory(path) {
+        let newChoices = [];
+
+        switch (path) {
+            case "lightPath":
+                document.getElementById("storyText").textContent =
+                    "The warmth of destiny embraces you. A celestial being appears, offering wisdom. It speaks of great challenges ahead, yet promises glory for those who walk the path of light.";
+                newChoices = [
+                    { text: "Listen to the wisdom", karma: 10, next: "divineChoice" },
+                    { text: "Ignore and move forward", karma: 0, next: "neutralPath" },
+                    { text: "Ask about the future", karma: 5, next: "futureChoice" },
+                    { text: "Accept the being's offer of power", karma: 5, next: "godlyGift" },
+                    { text: "Ask for guidance in overcoming your fears", karma: 5, next: "fearlessPath" }
+                ];
+                break;
+
+            case "darkPath":
+                document.getElementById("storyText").textContent =
+                    "The shadows whisper secrets of power. A mysterious figure offers you forbidden knowledge. The air grows heavy as the power it offers becomes more alluring.";
+                newChoices = [
+                    { text: "Accept the dark gift", karma: -10, next: "forbiddenPower" },
+                    { text: "Resist and walk away", karma: 5, next: "neutralPath" },
+                    { text: "Strike down the figure", karma: -5, next: "villainPath" },
+                    { text: "Join the figure and seek revenge", karma: -15, next: "revengePath" },
+                    { text: "Try to manipulate the figure", karma: -5, next: "manipulationPath" }
+                ];
+                break;
+
+            case "neutralPath":
+                document.getElementById("storyText").textContent =
+                    "You walk the middle path, neither bound to light nor darkness. The journey continues, but your decisions may still tip the balance.";
+                newChoices = [
+                    { text: "Forge your own fate", karma: 0, next: "wandererEnd" },
+                    { text: "Seek guidance from an elder", karma: 5, next: "elderChoice" },
+                    { text: "Find a way to bring balance", karma: 0, next: "balancePath" },
+                    { text: "Avoid the challenges and travel in solitude", karma: -5, next: "solitudePath" },
+                    { text: "Reflect on your past mistakes", karma: 0, next: "reflectionPath" }
+                ];
+                break;
+
+            case "divineChoice":
+                document.getElementById("storyText").textContent =
+                    "The celestial being grants you the power of wisdom. You now see the paths of all futures. However, this wisdom comes at a price, for you must choose a new course.";
+                newChoices = [
+                    { text: "Use wisdom to guide others", karma: 15, next: "heroPath" },
+                    { text: "Keep the knowledge for yourself", karma: 5, next: "selfishPath" },
+                    { text: "Seek deeper understanding", karma: 10, next: "wisdomPath" },
+                    { text: "Share the knowledge with the world", karma: 10, next: "worldPath" },
+                    { text: "Use wisdom to uncover hidden truths", karma: 10, next: "truthPath" }
+                ];
+                break;
+
+            case "forbiddenPower":
+                document.getElementById("storyText").textContent =
+                    "You accept the dark gift, feeling an immense power surge within you. A kingdom of darkness awaits, but the price may be too great to pay.";
+                newChoices = [
+                    { text: "Rule with tyranny", karma: -15, next: "villainPath" },
+                    { text: "Seek redemption", karma: 10, next: "redemptionPath" },
+                    { text: "Destroy the gift", karma: 0, next: "neutralPath" },
+                    { text: "Give the gift to someone else", karma: -5, next: "darkMasterPath" },
+                    { text: "Hide the power and use it only when necessary", karma: -5, next: "hiddenPath" }
+                ];
+                break;
+
+            case "revengePath":
+                document.getElementById("storyText").textContent =
+                    "Fueled by anger, you plot a path of destruction. Each action you take leads you further down a dark and treacherous road.";
+                newChoices = [
+                    { text: "Strike down your enemies one by one", karma: -20, next: "villainPath" },
+                    { text: "Seek forgiveness for your actions", karma: 10, next: "redemptionPath" },
+                    { text: "Let go of your revenge and seek peace", karma: 0, next: "peacePath" },
+                    { text: "Join others in rebellion against the tyrants", karma: -10, next: "rebellionPath" },
+                    { text: "Conquer the world with your power", karma: -30, next: "darkEmpirePath" }
+                ];
+                break;
+
+            case "manipulationPath":
+                document.getElementById("storyText").textContent =
+                    "Your mind twists with dark intentions. The figure's offer gives you a chance to bend others to your will. Yet, power achieved through manipulation comes with its own set of consequences.";
+                newChoices = [
+                    { text: "Manipulate others for your own gain", karma: -10, next: "villainPath" },
+                    { text: "Use manipulation for a greater cause", karma: -5, next: "saviorPath" },
+                    { text: "Turn on the figure and betray them", karma: -15, next: "betrayerPath" },
+                    { text: "Withdraw from manipulation and find your own path", karma: 0, next: "neutralPath" },
+                    { text: "Master the art of manipulation to gain allies", karma: -5, next: "alliedPath" }
+                ];
+                break;
+
+            case "heroPath":
+                document.getElementById("storyText").textContent =
+                    "The wisdom you gained guides you to become a legendary hero. You stand for justice, light, and the defense of the weak.";
+                newChoices = [
+                    { text: "Lead an army to defeat evil", karma: 15, next: "armyPath" },
+                    { text: "Protect the innocent and spread peace", karma: 10, next: "peacePath" },
+                    { text: "Help others find their own path", karma: 5, next: "mentorPath" },
+                    { text: "Create a lasting order of peace", karma: 20, next: "orderPath" }
+                ];
+                break;
+
+            case "redemptionPath":
+                document.getElementById("storyText").textContent =
+                    "Your quest for redemption is long and filled with trials, but it transforms you into a symbol of hope for others.";
+                newChoices = [
+                    { text: "Redeem yourself through sacrifice", karma: 15, next: "saviorPath" },
+                    { text: "Help others redeem themselves", karma: 10, next: "mentorPath" },
+                    { text: "Find peace by letting go of your past", karma: 10, next: "peacePath" },
+                    { text: "Create a new order based on compassion", karma: 20, next: "orderPath" }
+                ];
+                break;
+
+            case "saviorPath":
+                document.getElementById("storyText").textContent =
+                    "Your choices lead you to become a savior of both light and darkness. You bring balance and teach others how to control their own fate.";
+                newChoices = [
+                    { text: "Lead a revolution to bring justice", karma: 15, next: "justicePath" },
+                    { text: "Find the path to eternal peace", karma: 10, next: "peacePath" },
+                    { text: "Mentor those who seek guidance", karma: 5, next: "mentorPath" }
+                ];
+                break;
+
+            case "villainPath":
+                document.getElementById("storyText").textContent =
+                    "You are consumed by power and darkness. Your actions create enemies and allies alike, but you cannot escape the consequences of your choices.";
+                newChoices = [
+                    { text: "Continue down the path of destruction", karma: -20, next: "darkEmpirePath" },
+                    { text: "Attempt to conquer the world", karma: -30, next: "empirePath" },
+                    { text: "Seek redemption and find peace", karma: 10, next: "redemptionPath" }
+                ];
+                break;
+
+            case "peacePath":
+                document.getElementById("storyText").textContent =
+                    "Through your journey, you have found inner peace. The world around you calms, and you leave a legacy of balance and harmony.";
+                newChoices = [
+                    { text: "Help others find peace", karma: 5, next: "mentorPath" },
+                    { text: "Retire into solitude", karma: 0, next: "solitudeEnd" },
+                    { text: "Live to see the world prosper", karma: 10, next: "prosperityEnd" }
+                ];
+                break;
+
+            case "orderPath":
+                document.getElementById("storyText").textContent =
+                    "You establish a new order based on the principles of fairness and equality, guiding the world into a new age.";
+                newChoices = [
+                    { text: "Lead the order with wisdom", karma: 15, next: "wisdomEnd" },
+                    { text: "Create a council to help govern", karma: 10, next: "councilEnd" },
+                    { text: "Train new leaders for the next generation", karma: 5, next: "legacyEnd" }
+                ];
+                break;
+
+            case "armyPath":
+                document.getElementById("storyText").textContent =
+                    "You lead an army to destroy the forces of evil. Though victorious, you must grapple with the cost of war.";
+                newChoices = [
+                    { text: "Rule the conquered lands", karma: -10, next: "empirePath" },
+                    { text: "Return to your roots and bring peace", karma: 10, next: "peacePath" },
+                    { text: "Help rebuild the world you destroyed", karma: 5, next: "redemptionPath" }
+                ];
+                break;
+
+            case "mentorPath":
+                document.getElementById("storyText").textContent =
+                    "You take on the mantle of a mentor, guiding the next generation of leaders, heroes, and philosophers.";
+                newChoices = [
+                    { text: "Teach the ways of peace", karma: 5, next: "peacePath" },
+                    { text: "Pass on your wisdom to a chosen few", karma: 10, next: "wisdomEnd" },
+                    { text: "Train a new order to protect the world", karma: 15, next: "orderPath" }
+                ];
+                break;
+
+            case "legacyEnd":
+                document.getElementById("storyText").textContent =
+                    "Your legacy lives on, not in your lifetime, but in the generations you trained.";
+                endGame();
+                return;
+
+            case "empirePath":
+                document.getElementById("storyText").textContent =
+                    "You rule over the empire with an iron fist, but the burden of leadership begins to weigh on you.";
+                endGame();
+                return;
+
+            case "solitudeEnd":
+                document.getElementById("storyText").textContent =
+                    "You live out your days in solitude, content with the peace you've achieved but disconnected from the world.";
+                endGame();
+                return;
+
+            case "prosperityEnd":
+                document.getElementById("storyText").textContent =
+                    "Your world flourishes, and your wisdom guides a prosperous future.";
+                endGame();
+                return;
+
+            case "wisdomEnd":
+                document.getElementById("storyText").textContent =
+                    "The wisdom you shared creates a world of enlightenment, lasting through the ages.";
+                endGame();
+                return;
+
+            case "councilEnd":
+                document.getElementById("storyText").textContent =
+                    "The council you formed helps govern the world for generations.";
+                endGame();
+                return;
+        }
+
+        generateChoices(newChoices);
     }
-</script>
-
+  </script>
 </body>
 </html>
